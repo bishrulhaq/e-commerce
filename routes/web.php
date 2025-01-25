@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +30,13 @@ Route::middleware(['auth'])
     ->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::resource('products', ProductController::class);
+
+        Route::resource('categories', CategoryController::class);
+
+        // Subcategories
+        Route::get('categories/{category}/subcategories', [SubcategoryController::class, 'index'])->name('subcategories.index');
+        Route::post('categories/{category}/subcategories', [SubcategoryController::class, 'store'])->name('subcategories.store');
+        Route::delete('categories/{category}/subcategories/{subcategory}', [SubcategoryController::class, 'destroy'])->name('subcategories.destroy');
     });
 
 Route::middleware('auth')

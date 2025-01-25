@@ -1,42 +1,37 @@
 <template>
     <AdminLayout title="Manage Products">
+
+        <Alert ref="stackedAlerts"/>
+
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">Products</h1>
-            <Link :href="route('admin.products.create')" class="btn btn-primary">
-                Add Product
+
+            <Link :href="route('admin.products.create')">
+                <SecondaryButton>Add Product</SecondaryButton>
             </Link>
         </div>
 
         <!-- Filters Section -->
         <div class="mb-6">
             <form @submit.prevent="applyFilters" class="flex items-center space-x-4">
-                <input
-                    ref="searchInput"
-                    v-model="filters.search"
-                    type="text"
-                    placeholder="Search by name..."
-                    class="input"
+                <TextInput ref="searchInput" v-model="filters.search" type="text"
+                           placeholder="Search by name..."
+                           ></TextInput>
+                <DropdownSelect
+                    v-model="filters.category"
+                    :options="categories"
+                    placeholder="Select a Category"
+                    valueKey="id"
+                    labelKey="name"
                 />
-                <select v-model="filters.category" class="input">
-                    <option value="">All Categories</option>
-                    <option
-                        v-for="category in categories"
-                        :key="category.id"
-                        :value="category.id"
-                    >
-                        {{ category.name }}
-                    </option>
-                </select>
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
-                <button type="button" class="btn btn-secondary" @click="resetFilters">
-                    Reset
-                </button>
+                <SecondaryButton type="submit">Apply Filters</SecondaryButton>
+                <SecondaryButton @click="resetFilters">Reset</SecondaryButton>
             </form>
         </div>
 
         <!-- Products Table -->
         <div v-if="products.data.length > 0">
-            <table class="w-full bg-white shadow rounded">
+            <table class="w-full bg-white shadow rounded-xl">
                 <thead>
                 <tr>
                     <th class="px-4 py-2">ID</th>
@@ -56,16 +51,9 @@
                         {{ product.sale_price ? product.sale_price : product.regular_price }}
                     </td>
                     <td class="border px-4 py-2">{{ product.stock }}</td>
-                    <td class="border px-4 py-2">
-                        <Link :href="route('admin.products.edit', product.id)" class="text-blue-500 mr-2">Edit</Link>
-                        <Link
-                            as="button"
-                            method="delete"
-                            :href="route('admin.products.destroy', product.id)"
-                            class="text-red-500"
-                        >
-                            Delete
-                        </Link>
+                    <td class="border px-4 py-2 space-x-2">
+                        <PrimaryButton @click="editProduct(product.id)">Edit</PrimaryButton>
+                        <DangerButton @click="deleteProduct(product.id)">Delete</DangerButton>
                     </td>
                 </tr>
                 </tbody>
@@ -87,6 +75,15 @@ import debounce from 'lodash/debounce'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import Pagination from '@/Components/Pagintation.vue'
 import { Link, useForm } from '@inertiajs/vue3'
+import DangerButton from "@/Components/DangerButton.vue";
+import Alert from "@/Components/Alert.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
+import TextInput from "@/Components/TextInput.vue";
+import DropdownSelect from "@/Components/DropdownSelect.vue";
+
+// Reference to `StackedAlerts` component
+const stackedAlerts = ref(null);
 
 // Props passed from the server
 const props = defineProps({
@@ -133,12 +130,21 @@ function applyFilters() {
     })
 }
 
-function resetFilters() {
-    filters.reset()
-    filters.get(route('admin.products.index'), {
-        preserveState: false, // Reset to default state
-        onSuccess: () => focusSearchInput(),
-    })
+function deleteProduct(id) {
+    if (confirm('Are you sure you want to delete this product?')) {
+        filters.delete(route('admin.products.destroy', id), {
+            onSuccess: () => {
+                stackedAlerts?.value.addAlert("success", "Product deleted successfully!");
+            },
+            onError: () => {
+                stackedAlerts?.value.addAlert("danger", "Failed to delete the product.");
+            },
+        });
+    }
+}
+
+function editProduct(id){
+    filters.get(route('admin.products.edit', id));
 }
 </script>
 
