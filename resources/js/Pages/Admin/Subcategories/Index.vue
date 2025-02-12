@@ -5,7 +5,7 @@ import AdminLayout from "@/Layouts/AdminLayout.vue";
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
-import Pagination from '@/Components/Pagintation.vue';
+import Pagination from "@/Components/Pagination.vue";
 import Alert from '@/Components/Alert.vue';
 
 const props = defineProps({

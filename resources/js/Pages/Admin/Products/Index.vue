@@ -73,7 +73,7 @@
 import { ref, onMounted, watch } from 'vue'
 import debounce from 'lodash/debounce'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
-import Pagination from '@/Components/Pagintation.vue'
+import Pagination from "@/Components/Pagination.vue";
 import { Link, useForm } from '@inertiajs/vue3'
 import DangerButton from "@/Components/DangerButton.vue";
 import Alert from "@/Components/Alert.vue";

@@ -25,9 +25,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('cost_price', 8, 2)->default(0.00);
             $table->decimal('regular_price', 8, 2)->default(0.00);
-            $table->decimal('sale_price', 8, 2)->nullable();
-            $table->timestamp('sale_start')->nullable();
-            $table->timestamp('sale_end')->nullable();
+            $table->boolean('status')->default(true);
 
             // Stock
             $table->integer('stock')->default(0);

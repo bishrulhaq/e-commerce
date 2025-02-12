@@ -4,26 +4,12 @@
         <Alert ref="stackedAlerts"/>
 
         <!-- Add Subcategory Modal -->
-        <DialogModal v-model="isModalOpen">
-            <template #title>Add Subcategory</template>
-            <template #content>
-                <div class="flex flex-wrap w-full">
-                    <TextInput
-                        v-model="form.name"
-                        placeholder="Add Subcategory"
-                    />
-                </div>
-            </template>
-            <template #footer>
-                <PrimaryButton
-                    @click="submitSubcategory"
-                    :disabled="form.processing"
-                >
-                    Add
-                </PrimaryButton>
-                <SecondaryButton @click="closeModal">Cancel</SecondaryButton>
-            </template>
-        </DialogModal>
+        <AddSubcategoryModal
+            :isOpen="isModalOpen"
+            :category="selectedCategory"
+            @close="closeModal"
+            @submitted="onSubcategoryAdded"
+        />
 
         <div class="flex justify-between mb-6">
             <h1 class="text-2xl font-semibold">Categories</h1>
@@ -121,18 +107,19 @@
         </div>
     </AdminLayout>
 </template>
-
 <script setup>
-import {ref} from 'vue';
-import {Link, useForm} from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import Alert from "@/Components/Alert.vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import Pagination from "@/Components/Pagintation.vue";
+import Pagination from "@/Components/Pagination.vue";
 import TextInput from "@/Components/TextInput.vue";
 import DialogModal from "@/Components/DialogModal.vue";
+import { slugify } from '@/utils/slugify';
+import AddSubcategoryModal from "@/Components/AddSubcategoryModal.vue"; // Utility function for slug generation
 
 const props = defineProps({
     categories: Object, // Paginated categories with nested subcategories
@@ -142,14 +129,15 @@ const stackedAlerts = ref(null); // Reference to the Alert component
 const collapsedCategories = ref({}); // State for collapsing subcategories
 const isModalOpen = ref(false); // State for modal visibility
 const selectedCategory = ref(null); // Track the category for adding subcategories
+const slug = ref(''); // Track the dynamically generated slug
 
 const form = useForm({
     name: '', // For adding a new subcategory
 });
 
-// Toggle subcategory collapse
-const toggleCollapse = (categoryId) => {
-    collapsedCategories.value[categoryId] = !collapsedCategories.value[categoryId];
+// Function to generate a slug dynamically based on the name input
+const generateSlug = () => {
+    slug.value = slugify(form.name);
 };
 
 // Open modal to add a subcategory
@@ -165,6 +153,7 @@ const openModal = (category) => {
 const closeModal = () => {
     isModalOpen.value = false;
     form.reset(); // Clear form inputs
+    slug.value = ''; // Reset slug
 };
 
 // Submit subcategory form
@@ -196,6 +185,19 @@ const deleteSubcategory = (categoryId, subcategoryId) => {
     }
 };
 
+// Handle successful subcategory addition
+const onSubcategoryAdded = () => {
+    stackedAlerts.value?.addAlert('success', 'Subcategory added successfully.');
+};
+
+const toggleCollapse = (categoryId) => {
+    if (!collapsedCategories.value.hasOwnProperty(categoryId)) {
+        collapsedCategories.value[categoryId] = true; // Open if not already present
+    } else {
+        collapsedCategories.value[categoryId] = !collapsedCategories.value[categoryId]; // Toggle state
+    }
+};
+
 // Delete Category
 const deleteCategory = (categoryId) => {
     if (confirm('Are you sure you want to delete this category?')) {
@@ -210,3 +212,4 @@ const deleteCategory = (categoryId) => {
     }
 };
 </script>
+

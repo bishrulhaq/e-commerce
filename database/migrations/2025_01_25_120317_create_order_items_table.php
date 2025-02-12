@@ -14,14 +14,16 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')
-                  ->constrained('orders')
-                  ->onDelete('cascade');
+                ->constrained('orders')
+                ->onDelete('cascade'); // Deletes order_items when an order is deleted
+
             $table->foreignId('product_id')
-                  ->constrained('products')
-                  ->onDelete('cascade');
-            $table->integer('quantity');
-            // Price at the moment of purchase (could differ from current product price)
-            $table->decimal('price', 8, 2);
+                ->constrained('products')
+                ->onDelete('cascade'); // Deletes order_items when a product is deleted
+
+            $table->integer('quantity')->default(0);
+            $table->decimal('price', 8, 2)->default(0.0);
+            $table->decimal('subtotal', 10, 2)->default(0.0);
             $table->timestamps();
         });
     }
